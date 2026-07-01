@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor Gimnasio - Inventario</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Inventario del Gimnasio 🏋️‍♂️</h1>
+    <div id="contenedor-productos">
+    </style>
+</head>
+<body>
+
+    <h1>Inventario del Gimnasio 🏋️‍♂️</h1>
+    <div id="contenedor-productos">
+        <p>Cargando productos desde el servidor...</p>
+    </div>
+
+    <script>
+        // Función para ir a buscar los datos a tu Backend
+        async function cargarProductos() {
+            try {
+                // Hacemos la petición a la ruta que acabamos de crear en Node.js
+                const respuesta = await fetch('http://localhost:5000/api/productos');
+                const productos = await respuesta.json();
+
+                const contenedor = document.getElementById('contenedor-productos');
+                contenedor.innerHTML = ''; 
+
+                // Recorremos cada producto y creamos su tarjeta visual en HTML
+                productos.forEach(producto => {
+                    const div = document.createElement('div');
+                    div.className = 'producto-card';
+                    div.innerHTML = `
+                        <h3>${producto.nombre} <span style="font-size: 0.6em; color: gray;">(${producto.id_producto})</span></h3>
+                        <p>${producto.descripcion}</p>
+                        <p class="precio">$${producto.precio}</p>
+                        <p class="stock">Stock disponible: ${producto.stock} unidades | Categoría: ${producto.categoria}</p>
+                    `;
+                    contenedor.appendChild(div);
+                });
+
+            } catch (error) {
+                document.getElementById('contenedor-productos').innerHTML = '<p style="color: red;">Error al conectar con el servidor.</p>';
+            }
+        }
+
+        // Ejecutamos la función apenas carga la página
+        cargarProductos();
+    </script>
+</body>
+</html>
