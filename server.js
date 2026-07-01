@@ -13,6 +13,9 @@ connectDB();
 app.use(cors()); // Permite que tu futuro Frontend de React se conecte sin bloqueos
 app.use(express.json()); 
 
+// Rutas de la API
+app.use('/api/productos', require('./routes/productoRoutes'));
+
 // Ruta de prueba para verificar que el servidor responda
 app.get('/', (req, res) => {
     res.send('API del Gestor de Gimnasio funcionando correctamente 🏋️‍♂️');
