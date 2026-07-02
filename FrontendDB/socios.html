@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor Gimnasio - Socios</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Gestión de Socios 🏃‍♂️</h1>
+    
+    <nav class="menu-principal">
+        <ul>
+            <li><a href="index.html">Inicio / Inventario</a></li>
+            <li><a href="#">Pedidos (Próximamente)</a></li>
+        </ul>
+    </nav>
+    <div id="contenedor-productos">
+        <p>Cargando socios desde el servidor...</p>
+    </div>
+
+    <script>
+        async function cargarSocios() {
+            try {
+                // Ahora pedimos los datos a la ruta de socios
+                const respuesta = await fetch('http://localhost:5000/api/socios');
+                const socios = await respuesta.json();
+
+                const contenedor = document.getElementById('contenedor-productos');
+                contenedor.innerHTML = ''; 
+
+                socios.forEach(socio => {
+                    // Formateamos la fecha para que se lea fácil en Argentina
+                    const fechaVencimiento = new Date(socio.membresia_actual.fecha_vencimiento).toLocaleDateString('es-AR');
+                    
+                    // Elegimos un color dependiendo de si está activo o no
+                    const colorEstado = socio.estado_activo ? '#27ae60' : '#e74c3c';
+                    const textoEstado = socio.estado_activo ? 'ACTIVO' : 'INACTIVO';
+
+                    const div = document.createElement('div');
+                    div.className = 'producto-card';
+                    div.innerHTML = `
+                        <h3>${socio.nombre} <span style="font-size: 0.6em; color: gray;">(${socio.id_socio})</span></h3>
+                        <p>📧 ${socio.correo} <br> 📱 ${socio.telefono}</p>
+                        <p style="color: ${colorEstado}; font-weight: bold;">Estado: ${textoEstado}</p>
+                        <p class="stock">Plan: ${socio.membresia_actual.tipo} <br> Vence: ${fechaVencimiento}</p>
+                    `;
+                    contenedor.appendChild(div);
+                });
+
+            } catch (error) {
+                document.getElementById('contenedor-productos').innerHTML = '<p style="color: red;">Error al conectar con el servidor.</p>';
+            }
+        }
+
+        cargarSocios();
+    </script>
+</body>
+</html>

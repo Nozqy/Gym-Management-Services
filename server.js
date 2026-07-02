@@ -15,6 +15,8 @@ app.use(express.json());
 
 // Rutas de la API
 app.use('/api/productos', require('./routes/productoRoutes'));
+app.use('/api/productos', require('./routes/productoRoutes'));
+app.use('/api/socios', require('./routes/socioRoutes'));
 
 // Ruta de prueba para verificar que el servidor responda
 app.get('/', (req, res) => {
