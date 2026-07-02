@@ -111,3 +111,41 @@ h1 {
     background-color: #3498db; 
     color: #ffffff;
 }
+
+/* BOTONES Y FORMULARIOS*/
+.btn-principal {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin: 0 auto 20px auto;
+}
+
+.btn-principal:hover {
+    background-color: #219150;
+}
+
+.formulario-tarjeta {
+    background: #ffffff;
+    width: 320px;
+    margin: 0 auto 30px auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-top: 4px solid #2980b9;
+}
+
+.formulario-tarjeta input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: inherit;
+}

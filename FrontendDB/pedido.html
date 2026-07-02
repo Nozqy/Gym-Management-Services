@@ -22,11 +22,84 @@
 
     <h2 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">Registro de Ventas 🛒</h2>
 
+    <button id="btn-nuevo-pedido" class="btn-principal" onclick="toggleFormulario()">➕ Realizar Nuevo Pedido</button>
+
+    <div id="formulario-pedido" class="formulario-tarjeta" style="display: none;">
+        <h3 style="margin-bottom: 15px; color: #2c3e50;">Nuevo Ticket</h3>
+        
+        <input type="text" id="input-socio" placeholder="ID del Socio (ej: S001)">
+        <input type="text" id="input-producto" placeholder="ID del Producto (ej: ART002)">
+        <input type="text" id="input-nombre-prod" placeholder="Nombre del Producto">
+        <input type="number" id="input-precio" placeholder="Precio Unitario ($)">
+        <input type="number" id="input-cantidad" placeholder="Cantidad">
+        
+        <button class="btn-principal" style="width: 100%; margin-bottom: 0;" onclick="guardarPedido()">Guardar Venta</button>
+    </div>
+
     <div id="contenedor-productos">
         <p>Cargando pedidos desde el servidor...</p>
     </div>
 
     <script>
+        function toggleFormulario() {
+            const form = document.getElementById('formulario-pedido');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Función para enviar los datos al Backend
+        async function guardarPedido() {
+            //  Recolectamos lo que escribiste en los inputs
+            const idSocio = document.getElementById('input-socio').value;
+            const idProducto = document.getElementById('input-producto').value;
+            const nombreProd = document.getElementById('input-nombre-prod').value;
+            const precio = parseFloat(document.getElementById('input-precio').value);
+            const cantidad = parseInt(document.getElementById('input-cantidad').value);
+
+            // Validamos que no haya campos vacíos
+            if(!idSocio || !idProducto || !nombreProd || !precio || !cantidad) {
+                alert("Por favor, completá todos los campos.");
+                return;
+            }
+
+            //  Calculamos el total y armamos el paquete de datos (JSON)
+            const totalCalculado = precio * cantidad;
+            
+            const nuevoPedido = {
+                id_socio: idSocio,
+                productos: [{
+                    id_producto: idProducto,
+                    nombre: nombreProd,
+                    cantidad: cantidad,
+                    precio_unitario: precio
+                }],
+                estado: "entregado",
+                total: totalCalculado
+            };
+
+            try {
+                // Enviamos el paquete al servidor mediante POST
+                const respuesta = await fetch('http://localhost:5000/api/pedidos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevoPedido)
+                });
+
+                if(respuesta.ok) {
+                    alert("¡Pedido registrado exitosamente!");
+                    // Ocultamos el form, limpiamos los inputs y recargamos la lista
+                    toggleFormulario();
+                    document.getElementById('input-socio').value = '';
+                    document.getElementById('input-producto').value = '';
+                    document.getElementById('input-nombre-prod').value = '';
+                    document.getElementById('input-precio').value = '';
+                    document.getElementById('input-cantidad').value = '';
+                    cargarPedidos(); 
+                }
+            } catch (error) {
+                alert("Hubo un error al guardar el pedido.");
+            }
+        }
+        
         async function cargarPedidos() {
             try {
                 const respuesta = await fetch('http://localhost:5000/api/pedidos');
