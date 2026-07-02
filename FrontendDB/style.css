@@ -7,67 +7,106 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f6f6f6; 
-    color: #333;
+    background-color: #121212; /* Negro/Gris muy oscuro de fondo */
+    color: #e0e0e0; /* Texto claro principal */
     padding: 30px;
 }
 
-h1 {
+h1, h2 {
     text-align: center;
-    color: #2c3e50; 
+    color: #f1c40f; /* Amarillo vibrante para los títulos */
     margin-bottom: 40px;
-    font-size: 2.5rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
+/*
+   MENÚ DE NAVEGACIÓN PRINCIPAL
+*/
+.menu-principal {
+    background-color: #1a1a1a; /* Negro un poco más claro */
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+    border-bottom: 4px solid #e63946; /* Detalle rojo inferior */
+}
 
+.menu-principal ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.menu-principal a {
+    text-decoration: none;
+    color: #e0e0e0;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 6px;
+    background-color: #000000;
+    border: 1px solid #333;
+    transition: all 0.3s ease;
+}
+
+.menu-principal a:hover {
+    background-color: #e63946; /* Se vuelve rojo al pasar el mouse */
+    color: #ffffff;
+    border-color: #e63946;
+    box-shadow: 0 0 12px rgba(230, 57, 70, 0.6);
+}
+
+/* 
+   CONTENEDOR Y TARJETAS
+*/
 #contenedor-productos {
     display: flex;
-    flex-wrap: wrap; 
-    gap: 25px; 
-    justify-content: center; 
+    flex-wrap: wrap;
+    gap: 25px;
+    justify-content: center;
 }
 
-
 .producto-card {
-    background: #ececec;
-    width: 320px; 
+    background: #1e1e1e; /* Tarjeta gris oscuro */
+    width: 320px;
     border-radius: 12px;
     padding: 25px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.7);
+    border-top: 4px solid #f1c40f; /* Borde superior amarillo */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     display: flex;
     flex-direction: column;
 }
 
-
 .producto-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 12px 25px rgba(0,0,0,1);
+    border-top: 4px solid #e63946; /* Borde cambia a rojo al interactuar */
 }
 
 .producto-card h3 {
-    color: #e74c3c; 
+    color: #ffffff;
     font-size: 1.3rem;
     margin-bottom: 15px;
 }
 
 .producto-card h3 span {
     font-size: 0.8rem;
-    color: #95a5a6;
+    color: #f1c40f; /* IDs en color amarillo */
     font-weight: normal;
 }
 
 .producto-card p {
     margin-bottom: 15px;
     line-height: 1.6;
-    color: #555;
-    flex-grow: 1; 
+    color: #cccccc;
+    flex-grow: 1;
 }
 
 .precio {
-    color: #27ae60; 
+    color: #f1c40f !important; /* El precio resalta en amarillo oro */
     font-weight: 900;
     font-size: 1.6rem;
     margin-bottom: 15px;
@@ -75,46 +114,15 @@ h1 {
 
 .stock {
     font-size: 0.85rem;
-    color: #7f8c8d;
-    border-top: 1px solid #ecf0f1;
+    color: #888888;
+    border-top: 1px solid #333333;
     padding-top: 15px;
     margin-bottom: 0;
 }
 
-
-.menu-principal {
-    background-color: #ffffff;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.menu-principal ul {
-    list-style: none; 
-    display: flex;
-    justify-content: center;
-    gap: 15px; 
-}
-
-.menu-principal a {
-    text-decoration: none; 
-    color: #2c3e50;
-    font-weight: bold;
-    padding: 10px 20px;
-    border-radius: 6px;
-    background-color: #ecf0f1;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.menu-principal a:hover {
-    background-color: #3498db; 
-    color: #ffffff;
-}
-
-/* BOTONES Y FORMULARIOS*/
+/*BOTONES Y FORMULARIOS */
 .btn-principal {
-    background-color: #27ae60;
+    background-color: #e63946; 
     color: white;
     border: none;
     padding: 12px 24px;
@@ -122,30 +130,59 @@ h1 {
     font-weight: bold;
     border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
     display: block;
     margin: 0 auto 20px auto;
+    text-transform: uppercase;
 }
 
 .btn-principal:hover {
-    background-color: #219150;
+    background-color: #c62828; 
+    transform: scale(1.02);
 }
 
 .formulario-tarjeta {
-    background: #ffffff;
+    background: #1a1a1a;
     width: 320px;
     margin: 0 auto 30px auto;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    border-top: 4px solid #2980b9;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+    border: 1px solid #333;
+    border-left: 5px solid #f1c40f; 
 }
 
-.formulario-tarjeta input {
+.formulario-tarjeta h3 {
+    color: #ffffff !important;
+}
+
+/* Estilo para los campos de texto y selecciones */
+.formulario-tarjeta input, 
+.formulario-tarjeta select {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #ccc;
+    background-color: #2a2a2a; 
+    color: #ffffff; 
+    border: 1px solid #444;
     border-radius: 4px;
     font-family: inherit;
+}
+
+.formulario-tarjeta input:focus,
+.formulario-tarjeta select:focus {
+    outline: none;
+    border-color: #f1c40f; 
+    box-shadow: 0 0 5px rgba(241, 196, 15, 0.5);
+}
+
+.formulario-tarjeta input::placeholder {
+    color: #777;
+}
+
+
+.formulario-tarjeta input[readonly] {
+    background-color: #111 !important;
+    color: #666 !important;
+    border: 1px solid #222 !important;
 }

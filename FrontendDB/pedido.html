@@ -19,7 +19,7 @@
         </ul>
     </nav>
 
-    <h2 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">Registro de Ventas 🛒</h2>
+    <h2 style="text-align: center; color: #f1c40f; margin-bottom: 20px;">Registro de Ventas 🛒</h2>
 
     <!-- Botón para abrir el formulario -->
     <button id="btn-nuevo-pedido" class="btn-principal" onclick="toggleFormulario()">➕ Realizar Nuevo Pedido</button>
@@ -81,7 +81,7 @@
             }
         }
 
-        // 2. Función que se dispara cuando elegís un producto de la lista
+        //  Función que se dispara cuando elegís un producto de la lista
         function actualizarPrecio() {
             const idSeleccionado = document.getElementById('select-producto').value;
             const productoEncontrado = listaProductos.find(p => p.id_producto === idSeleccionado);
