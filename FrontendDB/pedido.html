@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor Gimnasio - Pedidos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Gestión de Pedidos 🏋️‍♂️</h1>
+    </header>
+
+    <nav class="menu-principal">
+        <ul>
+            <li><a href="index.html">Inicio / Inventario</a></li>
+            <li><a href="socios.html">Gestión de Socios</a></li>
+            <li><a href="pedido.html">Pedidos Realizados</a></li>
+        </ul>
+    </nav>
+
+    <h2 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">Registro de Ventas 🛒</h2>
+
+    <div id="contenedor-productos">
+        <p>Cargando pedidos desde el servidor...</p>
+    </div>
+
+    <script>
+        async function cargarPedidos() {
+            try {
+                const respuesta = await fetch('http://localhost:5000/api/pedidos');
+                const pedidos = await respuesta.json();
+
+                const contenedor = document.getElementById('contenedor-productos');
+                contenedor.innerHTML = ''; 
+
+                pedidos.forEach(pedido => {
+                    const fecha = new Date(pedido.fecha_pedido).toLocaleString('es-AR');
+                    
+                    // Armamos una lista HTML con los productos de este pedido específico
+                    let listaProductosHTML = '<ul style="margin-bottom: 10px; padding-left: 20px; color: #555;">';
+                    pedido.productos.forEach(item => {
+                        listaProductosHTML += `<li>${item.cantidad}x ${item.nombre} ($${item.precio_unitario})</li>`;
+                    });
+                    listaProductosHTML += '</ul>';
+
+                    const div = document.createElement('div');
+                    div.className = 'producto-card';
+                    div.innerHTML = `
+                        <h3>Ticket de Socio: ${pedido.id_socio}</h3>
+                        <p style="font-size: 0.85rem; color: #7f8c8d; margin-bottom: 10px;">📅 ${fecha}</p>
+                        <p><strong>Artículos comprados:</strong></p>
+                        ${listaProductosHTML}
+                        <p style="color: #2980b9; font-weight: bold;">Estado: ${pedido.estado.toUpperCase()}</p>
+                        <p class="precio" style="margin-top: auto;">Total: $${pedido.total}</p>
+                    `;
+                    contenedor.appendChild(div);
+                });
+
+            } catch (error) {
+                document.getElementById('contenedor-productos').innerHTML = '<p style="color: red;">Error al conectar con el servidor.</p>';
+            }
+        }
+
+        cargarPedidos();
+    </script>
+</body>
+</html>
