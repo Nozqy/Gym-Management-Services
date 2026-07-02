@@ -1,5 +1,6 @@
 const Pedido = require('../models/Pedido');
-
+const Producto = require('../models/Producto'); 
+// Función para obtener todos los pedidos
 exports.obtenerPedidos = async (req, res) => {
     try {
         const pedidos = await Pedido.find();
@@ -10,11 +11,26 @@ exports.obtenerPedidos = async (req, res) => {
     }
 };
 
+// Función para crear un nuevo pedido y descontar stock
 exports.crearPedido = async (req, res) => {
     try {
         const nuevoPedido = new Pedido(req.body);
+
+        // 2. LÓGICA DE STOCK: Recorremos cada producto dentro del ticket de venta
+        for (let item of nuevoPedido.productos) {
+            
+
+            // Usamos $inc con un número negativo para restar
+            await Producto.findOneAndUpdate(
+                { id_producto: item.id_producto }, 
+                { $inc: { stock: -item.cantidad } } // Restamos la cantidad
+            );
+        }
+
+        // 4. Guardamos el ticket en la base de datos
         await nuevoPedido.save();
-        res.json({ mensaje: 'Pedido guardado exitosamente' });
+        res.json({ mensaje: 'Pedido guardado y stock descontado exitosamente' });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ mensaje: 'Error al crear el pedido' });

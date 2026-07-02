@@ -9,29 +9,39 @@
 <body>
 
     <header>
-        <h1>Gestión de Pedidos 🏋️‍♂️</h1>
+        <h1>Gestor de Gimnasio 🏋️‍♂️</h1>
     </header>
 
     <nav class="menu-principal">
         <ul>
             <li><a href="index.html">Inicio / Inventario</a></li>
             <li><a href="socios.html">Gestión de Socios</a></li>
-            <li><a href="pedido.html">Pedidos Realizados</a></li>
         </ul>
     </nav>
 
     <h2 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">Registro de Ventas 🛒</h2>
 
+    <!-- Botón para abrir el formulario -->
     <button id="btn-nuevo-pedido" class="btn-principal" onclick="toggleFormulario()">➕ Realizar Nuevo Pedido</button>
 
+    <!-- Formulario modificado con Listas Desplegables -->
     <div id="formulario-pedido" class="formulario-tarjeta" style="display: none;">
         <h3 style="margin-bottom: 15px; color: #2c3e50;">Nuevo Ticket</h3>
         
-        <input type="text" id="input-socio" placeholder="ID del Socio (ej: S001)">
-        <input type="text" id="input-producto" placeholder="ID del Producto (ej: ART002)">
-        <input type="text" id="input-nombre-prod" placeholder="Nombre del Producto">
-        <input type="number" id="input-precio" placeholder="Precio Unitario ($)">
-        <input type="number" id="input-cantidad" placeholder="Cantidad">
+        <!-- Dropdown para Socios -->
+        <select id="select-socio" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
+            <option value="">Seleccione un Socio...</option>
+        </select>
+
+        <!-- Dropdown para Productos -->
+        <select id="select-producto" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;" onchange="actualizarPrecio()">
+            <option value="">Seleccione un Producto...</option>
+        </select>
+        
+        <!-- Inputs de solo lectura auto-completados -->
+        <input type="hidden" id="input-nombre-prod">
+        <input type="number" id="input-precio" placeholder="Precio Unitario ($)" readonly style="background-color: #f8f9fa; color: #7f8c8d; cursor: not-allowed;">
+        <input type="number" id="input-cantidad" placeholder="Cantidad a vender" min="1">
         
         <button class="btn-principal" style="width: 100%; margin-bottom: 0;" onclick="guardarPedido()">Guardar Venta</button>
     </div>
@@ -41,63 +51,56 @@
     </div>
 
     <script>
+        // Variable global para guardar los productos y sus precios
+        let listaProductos = [];
+
+        // 1. Nueva función para cargar los menús desplegables desde la Base de Datos
+        async function cargarOpcionesFormulario() {
+            try {
+                // Traemos los socios activos
+                const resSocios = await fetch('http://localhost:5000/api/socios');
+                const socios = await resSocios.json();
+                const selectSocio = document.getElementById('select-socio');
+                socios.forEach(socio => {
+                    if(socio.estado_activo) {
+                        selectSocio.innerHTML += `<option value="${socio.id_socio}">${socio.nombre} (${socio.id_socio})</option>`;
+                    }
+                });
+
+                // Traemos los productos con stock
+                const resProductos = await fetch('http://localhost:5000/api/productos');
+                listaProductos = await resProductos.json();
+                const selectProducto = document.getElementById('select-producto');
+                listaProductos.forEach(prod => {
+                    if(prod.stock > 0) {
+                        selectProducto.innerHTML += `<option value="${prod.id_producto}">${prod.nombre} - $${prod.precio} (Stock: ${prod.stock})</option>`;
+                    }
+                });
+            } catch (error) {
+                console.error("Error al cargar las listas desplegables.");
+            }
+        }
+
+        // 2. Función que se dispara cuando elegís un producto de la lista
+        function actualizarPrecio() {
+            const idSeleccionado = document.getElementById('select-producto').value;
+            const productoEncontrado = listaProductos.find(p => p.id_producto === idSeleccionado);
+            
+            if(productoEncontrado) {
+                // Autocompletamos el precio y el nombre oculto
+                document.getElementById('input-precio').value = productoEncontrado.precio;
+                document.getElementById('input-nombre-prod').value = productoEncontrado.nombre;
+                // Le ponemos un límite al input de cantidad según el stock real
+                document.getElementById('input-cantidad').max = productoEncontrado.stock;
+            } else {
+                document.getElementById('input-precio').value = '';
+                document.getElementById('input-nombre-prod').value = '';
+            }
+        }
+
         function toggleFormulario() {
             const form = document.getElementById('formulario-pedido');
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // Función para enviar los datos al Backend
-        async function guardarPedido() {
-            //  Recolectamos lo que escribiste en los inputs
-            const idSocio = document.getElementById('input-socio').value;
-            const idProducto = document.getElementById('input-producto').value;
-            const nombreProd = document.getElementById('input-nombre-prod').value;
-            const precio = parseFloat(document.getElementById('input-precio').value);
-            const cantidad = parseInt(document.getElementById('input-cantidad').value);
-
-            // Validamos que no haya campos vacíos
-            if(!idSocio || !idProducto || !nombreProd || !precio || !cantidad) {
-                alert("Por favor, completá todos los campos.");
-                return;
-            }
-
-            //  Calculamos el total y armamos el paquete de datos (JSON)
-            const totalCalculado = precio * cantidad;
-            
-            const nuevoPedido = {
-                id_socio: idSocio,
-                productos: [{
-                    id_producto: idProducto,
-                    nombre: nombreProd,
-                    cantidad: cantidad,
-                    precio_unitario: precio
-                }],
-                estado: "entregado",
-                total: totalCalculado
-            };
-
-            try {
-                // Enviamos el paquete al servidor mediante POST
-                const respuesta = await fetch('http://localhost:5000/api/pedidos', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(nuevoPedido)
-                });
-
-                if(respuesta.ok) {
-                    alert("¡Pedido registrado exitosamente!");
-                    // Ocultamos el form, limpiamos los inputs y recargamos la lista
-                    toggleFormulario();
-                    document.getElementById('input-socio').value = '';
-                    document.getElementById('input-producto').value = '';
-                    document.getElementById('input-nombre-prod').value = '';
-                    document.getElementById('input-precio').value = '';
-                    document.getElementById('input-cantidad').value = '';
-                    cargarPedidos(); 
-                }
-            } catch (error) {
-                alert("Hubo un error al guardar el pedido.");
-            }
         }
 
         async function cargarPedidos() {
@@ -111,19 +114,18 @@
                 pedidos.forEach(pedido => {
                     const fecha = new Date(pedido.fecha_pedido).toLocaleString('es-AR');
                     
-                    // Armamos una lista HTML con los productos de este pedido específico
                     let listaProductosHTML = '<ul style="margin-bottom: 10px; padding-left: 20px; color: #555;">';
                     pedido.productos.forEach(item => {
                         listaProductosHTML += `<li>${item.cantidad}x ${item.nombre} ($${item.precio_unitario})</li>`;
                     });
                     listaProductosHTML += '</ul>';
 
-                    const div = document.createElement('div');
-                    div.className = 'producto-card';
                     const botonCompletar = pedido.estado !== 'completado' 
                         ? `<button onclick="completarPedido('${pedido._id}')" style="background-color: #3498db; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; flex-grow: 1;">✔️ Completar</button>` 
                         : '';
 
+                    const div = document.createElement('div');
+                    div.className = 'producto-card';
                     div.innerHTML = `
                         <h3>Ticket de Socio: ${pedido.id_socio}</h3>
                         <p style="font-size: 0.85rem; color: #7f8c8d; margin-bottom: 10px;">📅 ${fecha}</p>
@@ -139,35 +141,78 @@
                     `;
                     contenedor.appendChild(div);
                 });
-
             } catch (error) {
                 document.getElementById('contenedor-productos').innerHTML = '<p style="color: red;">Error al conectar con el servidor.</p>';
             }
         }
+
+        async function guardarPedido() {
+            // Recolectamos los datos ahora de los 'select'
+            const idSocio = document.getElementById('select-socio').value;
+            const idProducto = document.getElementById('select-producto').value;
+            const nombreProd = document.getElementById('input-nombre-prod').value;
+            const precio = parseFloat(document.getElementById('input-precio').value);
+            const cantidad = parseInt(document.getElementById('input-cantidad').value);
+
+            if(!idSocio || !idProducto || !cantidad) {
+                alert("Por favor, completá todos los campos.");
+                return;
+            }
+
+            const totalCalculado = precio * cantidad;
+            
+            const nuevoPedido = {
+                id_socio: idSocio,
+                productos: [{
+                    id_producto: idProducto,
+                    nombre: nombreProd,
+                    cantidad: cantidad,
+                    precio_unitario: precio
+                }],
+                estado: "entregado",
+                total: totalCalculado
+            };
+
+            try {
+                const respuesta = await fetch('http://localhost:5000/api/pedidos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevoPedido)
+                });
+
+                if(respuesta.ok) {
+                    alert("¡Pedido registrado exitosamente!");
+                    toggleFormulario();
+                    document.getElementById('select-socio').value = '';
+                    document.getElementById('select-producto').value = '';
+                    document.getElementById('input-nombre-prod').value = '';
+                    document.getElementById('input-precio').value = '';
+                    document.getElementById('input-cantidad').value = '';
+                    cargarPedidos(); 
+                }
+            } catch (error) {
+                alert("Hubo un error al guardar el pedido.");
+            }
+        }
+
         async function completarPedido(id_mongo) {
             try {
-                await fetch(`http://localhost:5000/api/pedidos/${id_mongo}/completar`, {
-                    method: 'PATCH'
-                });
+                await fetch(`http://localhost:5000/api/pedidos/${id_mongo}/completar`, { method: 'PATCH' });
                 cargarPedidos();
-            } catch (error) {
-                alert("Error al actualizar");
-            }
+            } catch (error) { alert("Error al actualizar"); }
         }
 
         async function eliminarPedido(id_mongo) {
             if(confirm("¿Seguro que querés borrar este ticket?")) {
                 try {
-                    await fetch(`http://localhost:5000/api/pedidos/${id_mongo}`, {
-                        method: 'DELETE'
-                    });
+                    await fetch(`http://localhost:5000/api/pedidos/${id_mongo}`, { method: 'DELETE' });
                     cargarPedidos();
-                } catch (error) {
-                    alert("Error al eliminar");
-                }
+                } catch (error) { alert("Error al eliminar"); }
             }
         }
 
+        // Iniciamos ambas cargas al abrir la página
+        cargarOpcionesFormulario();
         cargarPedidos();
     </script>
 </body>
