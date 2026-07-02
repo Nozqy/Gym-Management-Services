@@ -99,7 +99,7 @@
                 alert("Hubo un error al guardar el pedido.");
             }
         }
-        
+
         async function cargarPedidos() {
             try {
                 const respuesta = await fetch('http://localhost:5000/api/pedidos');
@@ -120,6 +120,10 @@
 
                     const div = document.createElement('div');
                     div.className = 'producto-card';
+                    const botonCompletar = pedido.estado !== 'completado' 
+                        ? `<button onclick="completarPedido('${pedido._id}')" style="background-color: #3498db; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; flex-grow: 1;">✔️ Completar</button>` 
+                        : '';
+
                     div.innerHTML = `
                         <h3>Ticket de Socio: ${pedido.id_socio}</h3>
                         <p style="font-size: 0.85rem; color: #7f8c8d; margin-bottom: 10px;">📅 ${fecha}</p>
@@ -127,12 +131,40 @@
                         ${listaProductosHTML}
                         <p style="color: #2980b9; font-weight: bold;">Estado: ${pedido.estado.toUpperCase()}</p>
                         <p class="precio" style="margin-top: auto;">Total: $${pedido.total}</p>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            ${botonCompletar}
+                            <button onclick="eliminarPedido('${pedido._id}')" style="background-color: #e74c3c; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; flex-grow: 1;">🗑️ Eliminar</button>
+                        </div>
                     `;
                     contenedor.appendChild(div);
                 });
 
             } catch (error) {
                 document.getElementById('contenedor-productos').innerHTML = '<p style="color: red;">Error al conectar con el servidor.</p>';
+            }
+        }
+        async function completarPedido(id_mongo) {
+            try {
+                await fetch(`http://localhost:5000/api/pedidos/${id_mongo}/completar`, {
+                    method: 'PATCH'
+                });
+                cargarPedidos();
+            } catch (error) {
+                alert("Error al actualizar");
+            }
+        }
+
+        async function eliminarPedido(id_mongo) {
+            if(confirm("¿Seguro que querés borrar este ticket?")) {
+                try {
+                    await fetch(`http://localhost:5000/api/pedidos/${id_mongo}`, {
+                        method: 'DELETE'
+                    });
+                    cargarPedidos();
+                } catch (error) {
+                    alert("Error al eliminar");
+                }
             }
         }
 

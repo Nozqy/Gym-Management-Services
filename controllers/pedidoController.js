@@ -20,3 +20,23 @@ exports.crearPedido = async (req, res) => {
         res.status(500).json({ mensaje: 'Error al crear el pedido' });
     }
 };
+
+// Función para marcar pedido como completado
+exports.completarPedido = async (req, res) => {
+    try {
+        await Pedido.findByIdAndUpdate(req.params.id, { estado: 'completado' });
+        res.json({ mensaje: 'Pedido actualizado' });
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al actualizar el pedido' });
+    }
+};
+
+// Función para eliminar un pedido
+exports.eliminarPedido = async (req, res) => {
+    try {
+        await Pedido.findByIdAndDelete(req.params.id);
+        res.json({ mensaje: 'Pedido eliminado exitosamente' });
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al eliminar el pedido' });
+    }
+};
